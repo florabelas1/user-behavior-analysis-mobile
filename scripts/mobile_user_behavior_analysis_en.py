@@ -26,9 +26,13 @@ This project uses a dataset containing mobile device usage patterns to classify 
 import numpy as np
 import pandas as pd
 import seaborn as sb
-import matplotlib as plt
+import matplotlib.pyplot as plt
 import sklearn as skl
 import scipy as sp
+from sklearn.decomposition import PCA
+from sklearn.metrics import adjusted_rand_score, silhouette_score
+from sklearn.cluster import KMeans
+from sklearn.preprocessing import LabelEncoder, StandardScaler
 import kagglehub
 
 file_path = "/content/user_behavior_dataset.csv"
@@ -211,8 +215,6 @@ We used the `StandardScaler` library from scikit-learn to transform the numerica
 
 """
 
-from sklearn.preprocessing import StandardScaler
-
 scaler = StandardScaler()
 df[numerical_columns] = scaler.fit_transform(df[numerical_columns])
 
@@ -235,8 +237,6 @@ To enable machine learning algorithms to interpret categorical variables, we enc
 We transformed the columns using the following snippet:
 
 """
-
-from sklearn.preprocessing import LabelEncoder
 
 df['Gender'] = LabelEncoder().fit_transform(df['Gender'])
 df['Operating System'] = LabelEncoder().fit_transform(df['Operating System'])
@@ -291,8 +291,6 @@ To identify behavioral patterns among users, I used the **K-Means Clustering** a
 
 """
 
-from sklearn.cluster import KMeans
-
 # Select relevant numerical columns for clustering
 X = df[['App Usage Time (min/day)', 'Screen On Time (hours/day)',
         'Battery Drain (mAh/day)', 'Number of Apps Installed', 'Data Usage (MB/day)']]
@@ -311,7 +309,6 @@ print(df['Cluster'].value_counts())
 # 💻 Comparison Between Classes and Clusters
 """
 
-import pandas as pd
 # Comparison between original classes and generated clusters
 comparison = pd.crosstab(df['User Behavior Class'], df['Cluster'])
 print(comparison)
@@ -362,7 +359,6 @@ The clustering model **perfectly replicated** the original classes. This suggest
 # 🤖 Cluster Quality Evaluation: Silhouette Score
 """
 
-from sklearn.metrics import silhouette_score
 score = silhouette_score(X, kmeans.labels_)
 print(f"Silhouette Score: {score:.2f}")
 
@@ -402,8 +398,6 @@ This approach provides a more complete and robust analysis of the quality of the
 
 """
 
-from sklearn.metrics import adjusted_rand_score
-
 # Calculate the Adjusted Rand Index (ARI)
 ari_score = adjusted_rand_score(df['User Behavior Class'], df['Cluster'])
 
@@ -428,10 +422,6 @@ The Silhouette Score evaluates only the geometric separation between clusters, w
 ---
 # 🖼️ Cluster Visualization with PCA
 """
-
-from sklearn.decomposition import PCA
-import matplotlib.pyplot as plt
-import os
 
 os.makedirs('results', exist_ok=True)
 pca = PCA(n_components=2)
@@ -501,12 +491,12 @@ numerical_columns = ['App Usage Time (min/day)', 'Screen On Time (hours/day)',
 X_new = X_new[numerical_columns]
 
 # Normalize the data again
-from sklearn.preprocessing import StandardScaler
+
 scaler = StandardScaler()
 X_scaled = scaler.fit_transform(X_new)
 
 # Re-run the clustering with K-Means
-from sklearn.cluster import KMeans
+
 kmeans = KMeans(n_clusters=5, random_state=42)
 kmeans.fit(X_scaled)
 
@@ -514,11 +504,10 @@ kmeans.fit(X_scaled)
 df['New Cluster'] = kmeans.labels_
 
 # Evaluate the clusters
-from sklearn.metrics import silhouette_score
+
 silhouette_new = silhouette_score(X_scaled, kmeans.labels_)
 print(f"New Silhouette Score: {silhouette_new:.2f}")
 
-from sklearn.metrics import adjusted_rand_score
 
 # Calculate the Adjusted Rand Index (ARI)
 ari_score = adjusted_rand_score(df['User Behavior Class'], df['Cluster'])
