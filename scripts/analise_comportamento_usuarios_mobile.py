@@ -26,9 +26,13 @@ Este projeto utiliza um conjunto de dados que contém padrões de uso de disposi
 import numpy as np
 import pandas as pd
 import seaborn as sb
-import matplotlib as plt
+import matplotlib.pyplot as plt
 import sklearn as skl
 import scipy as sp
+from sklearn.decomposition import PCA
+from sklearn.metrics import adjusted_rand_score, silhouette_score
+from sklearn.cluster import KMeans
+from sklearn.preprocessing import LabelEncoder, StandardScaler
 import kagglehub
 
 file_path = "/content/user_behavior_dataset.csv"
@@ -195,8 +199,6 @@ Para garantir que todas as variáveis numéricas estejam na mesma escala e sejam
 Utilizamos a biblioteca `StandardScaler` do scikit-learn para transformar as colunas numéricas. Cada valor foi ajustado pela fórmula:
 """
 
-from sklearn.preprocessing import StandardScaler
-
 scaler = StandardScaler()
 df[numerical_columns] = scaler.fit_transform(df[numerical_columns])
 
@@ -218,8 +220,6 @@ Para que os algoritmos de aprendizado de máquina possam interpretar variáveis 
 ### Código Utilizado:
 Transformamos as colunas com o seguinte trecho de código:
 """
-
-from sklearn.preprocessing import LabelEncoder
 
 df['Gender'] = LabelEncoder().fit_transform(df['Gender'])
 df['Operating System'] = LabelEncoder().fit_transform(df['Operating System'])
@@ -272,8 +272,6 @@ Para identificar padrões de comportamento entre os usuários, utilizei o algori
    O desempenho do clustering foi avaliado usando o **Silhouette Score**, que mediu a qualidade da separação entre os clusters.
 """
 
-from sklearn.cluster import KMeans
-
 # Selecionar colunas numéricas relevantes para clustering
 X = df[['App Usage Time (min/day)', 'Screen On Time (hours/day)',
         'Battery Drain (mAh/day)', 'Number of Apps Installed', 'Data Usage (MB/day)']]
@@ -292,7 +290,6 @@ print(df['Cluster'].value_counts())
 # 💻Comparação entre Classes e Clusters
 """
 
-import pandas as pd
 # Comparação entre classes originais e clusters gerados
 comparison = pd.crosstab(df['User Behavior Class'], df['Cluster'])
 print(comparison)
@@ -343,7 +340,6 @@ O modelo de clustering **replicou perfeitamente** as classes originais. Isso sug
 #🤖 Avaliação de Qualidade dos Clusters: Silhouette Score
 """
 
-from sklearn.metrics import silhouette_score
 score = silhouette_score(X, kmeans.labels_)
 print(f"Silhouette Score: {score:.2f}")
 
@@ -383,8 +379,6 @@ Dessa forma, podemos obter uma análise mais completa e robusta da qualidade do 
 
 """
 
-from sklearn.metrics import adjusted_rand_score
-
 # Calcular o Adjusted Rand Index (ARI)
 ari_score = adjusted_rand_score(df['User Behavior Class'], df['Cluster'])
 
@@ -408,9 +402,6 @@ Embora o Silhouette Score tenha indicado uma moderada coesão e separação dos 
 ---
 #🖼️ Visualização dos Clusters com PCA
 """
-
-from sklearn.decomposition import PCA
-import matplotlib.pyplot as plt
 
 pca = PCA(n_components=2)
 X_pca = pca.fit_transform(X)
@@ -478,12 +469,10 @@ numerical_columns = ['App Usage Time (min/day)', 'Screen On Time (hours/day)',
 X_new = X_new[numerical_columns]
 
 # Normalizar os dados novamente
-from sklearn.preprocessing import StandardScaler
 scaler = StandardScaler()
 X_scaled = scaler.fit_transform(X_new)
 
 # Refazer o clustering com K-Means
-from sklearn.cluster import KMeans
 kmeans = KMeans(n_clusters=5, random_state=42)
 kmeans.fit(X_scaled)
 
@@ -491,11 +480,8 @@ kmeans.fit(X_scaled)
 df['New Cluster'] = kmeans.labels_
 
 # Avaliar os clusters
-from sklearn.metrics import silhouette_score
 silhouette_new = silhouette_score(X_scaled, kmeans.labels_)
 print(f"Novo Silhouette Score: {silhouette_new:.2f}")
-
-from sklearn.metrics import adjusted_rand_score
 
 # Calcular o Adjusted Rand Index (ARI)
 ari_score = adjusted_rand_score(df['User Behavior Class'], df['Cluster'])
